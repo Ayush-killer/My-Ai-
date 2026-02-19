@@ -56,7 +56,8 @@ const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
 
 // FIX: Yahan maine tera pura correct endpoint link daal diya hai
-const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app"; 
+const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app/api/chat";
+
 
 window.onload = () => {
     renderHistory();
@@ -96,7 +97,7 @@ function handleImageUpload(input) {
 
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
-    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya banau?</div></div>`;
+    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">hello 😎😉<b>${userName}</b> how are you </div></div>`;
 }
 
 async function sendMsg() {
@@ -168,3 +169,4 @@ function renderHistory() {
         list.appendChild(div);
     });
 }
+
