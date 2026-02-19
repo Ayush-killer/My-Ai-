@@ -1,6 +1,6 @@
 let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
 let currentSession = { id: Date.now(), messages: [] };
-let userName = localStorage.getItem('ai_user_name') || "Ayush";
+let userName = localStorage.getItem('ai_user_name');
 
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
@@ -9,29 +9,23 @@ const VERCEL_URL = "TERA_VERCEL_BACKEND_URL";
 
 window.onload = () => {
     renderHistory();
+    // LOADING BAR STOP LOGIC
     setTimeout(() => {
         document.getElementById('loader').style.display = 'none';
-        checkUser();
+        if(!userName) { document.getElementById('name-modal-overlay').style.display = 'flex'; } 
+        else { showApp(); }
     }, 3000);
 };
 
-// IMAGE UPLOAD HANDLER
-function handleImageUpload(input) {
+// IMAGE PREVIEW & SEND LOGIC
+function previewImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // User ko dikhane ke liye message bubble mein image add karo
-            addBubble('user', "Bhai, ye image dekh:", e.target.result);
-            // Yahan tu backend par image bhej sakta hai payload badal kar
+            addBubble('user', "Bhai ye dekh image:", e.target.result);
         };
         reader.readAsDataURL(input.files[0]);
     }
-}
-
-function checkUser() {
-    if(!localStorage.getItem('ai_user_name')) {
-        document.getElementById('name-modal-overlay').style.display = 'flex';
-    } else { showApp(); }
 }
 
 function saveUserName() {
@@ -52,7 +46,7 @@ function showApp() {
 
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
-    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya banau aaj?</div></div>`;
+    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram bhai! Bol kya karein?</div></div>`;
 }
 
 async function sendMsg() {
@@ -62,14 +56,15 @@ async function sendMsg() {
     msgInput.value = '';
     const genBubble = addGeneratingBubble();
     try {
-        const payload = imgToggle.checked 
-            ? { type: 'image', prompt: val, userName: userName }
-            : { type: 'chat', messages: [{role: 'user', content: val}], userName: userName };
-
         const res = await fetch(VERCEL_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                type: imgToggle.checked ? 'image' : 'chat',
+                prompt: val,
+                messages: [{role: 'user', content: val}],
+                userName: userName
+            })
         });
         const data = await res.json();
         genBubble.remove();
@@ -77,7 +72,7 @@ async function sendMsg() {
         else { addBubble('ai', data.choices[0].message.content); }
     } catch (e) {
         genBubble.remove();
-        addBubble('ai', "Bhai locha ho gaya!");
+        addBubble('ai', "Bhai error aa gaya!");
     }
 }
 
@@ -85,7 +80,9 @@ function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, text, img});
     const div = document.createElement('div');
     div.className = `${role}-msg`;
-    div.innerHTML = (img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:10px; border:2px solid #fff;">` : '') + (text ? `<div class="bubble">${text}</div>` : '');
+    let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px;">` : '';
+    content += text ? `<div class="bubble">${text}</div>` : '';
+    div.innerHTML = content;
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
     if(save) {
@@ -115,7 +112,7 @@ function renderHistory() {
     allSessions.slice().reverse().forEach(s => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerText = s.messages.find(m => m.role === 'user')?.text.substring(0, 25) || "Chat";
+        div.innerText = s.messages.find(m => m.role === 'user')?.text.substring(0, 20) || "Chat";
         div.onclick = () => { 
             currentSession = s; 
             chatView.innerHTML = ''; 
