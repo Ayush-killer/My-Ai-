@@ -19,7 +19,7 @@ function copyText(btn, text) {
     setTimeout(() => btn.innerHTML = original, 2000);
 }
 
-// Teri addBubble Function Updated (Copy button ke liye)
+// UPDATE: AI ke professional look ke liye isko thoda saaf kiya hai
 function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, text, img});
     const container = document.createElement('div');
@@ -28,10 +28,17 @@ function addBubble(role, text, img = null, save = true) {
     container.className = `${role}-msg`;
     
     let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.1);">` : '';
-    content += text ? `<div class="bubble">${text}</div>` : '';
     
-    // Copy button only for AI or text messages
-    if(text && !img) {
+    // Yahan 'white-space: pre-wrap' lagaya hai taaki line breaks aur points saaf dikhein
+    if (text) {
+        content += `
+            <div class="bubble" style="white-space: pre-wrap; line-height: 1.6; background: ${role === 'ai' ? 'transparent' : ''}; border: ${role === 'ai' ? 'none' : ''}; padding: ${role === 'ai' ? '10px 0' : ''};">
+                ${text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}
+            </div>
+        `;
+    }
+    
+    if(text && !img && role === 'ai') {
         content += `<div class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="fas fa-copy"></i> Copy</div>`;
     }
 
@@ -47,7 +54,7 @@ function addBubble(role, text, img = null, save = true) {
     }
 }
 
-// --- TERI BAAKI SARI FUNCTIONS ---
+// --- TERI BAAKI SARI FUNCTIONS (BINA KISI CHANGE KE) ---
 let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
 let currentSession = { id: Date.now(), messages: [] };
 let userName = localStorage.getItem('ai_user_name');
@@ -55,9 +62,7 @@ const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
 
-// FIX: Yahan maine tera pura correct endpoint link daal diya hai
 const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app/api/chat";
-
 
 window.onload = () => {
     renderHistory();
@@ -107,7 +112,6 @@ async function sendMsg() {
     msgInput.value = '';
     const genBubble = addGeneratingBubble();
     try {
-        // FIX: Yahan VERCEL_URL ka use ho raha hai jo ab sahi endpoint hai
         const res = await fetch(VERCEL_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -127,7 +131,6 @@ async function sendMsg() {
             addBubble('ai', '', data.imageUrl); 
         } 
         else { 
-            // API response handle karne ke liye
             const aiReply = data.choices ? data.choices[0].message.content : (data.reply || "Bhai samajh nahi aaya!");
             addBubble('ai', aiReply); 
         }
@@ -168,4 +171,4 @@ function renderHistory() {
         };
         list.appendChild(div);
     });
-            }
+}
