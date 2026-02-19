@@ -1,15 +1,14 @@
 let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
 let currentSession = { id: Date.now(), messages: [] };
-let userName = localStorage.getItem('ai_user_name') || "Ayush";
+let userName = localStorage.getItem('ai_user_name');
 
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
 const userDisplay = document.getElementById('user-display');
 
-// !!! YAHAN APNA VERCEL URL DAAL !!!
-// Example: "https://apna-ai-api.vercel.app/api/chat"
-const VERCEL_URL = "TERA_VERCEL_BACKEND_URL"; 
+// YAHAN APNA VERCEL BACKEND LINK DAALNA
+const VERCEL_URL = "https://tera-backend-link.vercel.app/api/chat"; 
 
 window.onload = () => {
     renderHistory();
@@ -20,7 +19,7 @@ window.onload = () => {
 };
 
 function checkUser() {
-    if(!localStorage.getItem('ai_user_name')) {
+    if(!userName) {
         document.getElementById('name-modal-overlay').style.display = 'flex';
         setTimeout(() => document.getElementById('name-modal').classList.add('show'), 100);
     } else { showApp(); }
@@ -44,7 +43,7 @@ function showApp() {
 
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
-    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya banau aaj?</div></div>`;
+    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya sewa karein?</div></div>`;
 }
 
 async function sendMsg() {
@@ -53,7 +52,6 @@ async function sendMsg() {
 
     addBubble('user', val);
     msgInput.value = '';
-    
     const genBubble = addGeneratingBubble();
 
     try {
@@ -77,7 +75,7 @@ async function sendMsg() {
         }
     } catch (e) {
         genBubble.remove();
-        addBubble('ai', "Bhai locha ho gaya! Backend link sahi se check kar.");
+        addBubble('ai', "Bhai locha ho gaya! Vercel link check kar.");
     }
 }
 
@@ -85,15 +83,12 @@ function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, text, img});
     const div = document.createElement('div');
     div.className = `${role}-msg`;
-    
-    let html = '';
-    if(img) html += `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:10px;">`;
-    if(text) html += `<div class="bubble">${text}</div>`;
-    
+    let html = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:10px;">` : '';
+    html += text ? `<div class="bubble">${text}</div>` : '';
     div.innerHTML = html;
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
-
+    
     if(save) {
         const idx = allSessions.findIndex(s => s.id === currentSession.id);
         if(idx === -1) allSessions.push(currentSession); else allSessions[idx] = currentSession;
@@ -105,7 +100,7 @@ function addBubble(role, text, img = null, save = true) {
 function addGeneratingBubble() {
     const div = document.createElement('div');
     div.className = `ai-msg`;
-    div.innerHTML = `<div class="bubble">Bhai soch raha hai...</div>`;
+    div.innerHTML = `<div class="bubble">Wait kar bhai...</div>`;
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
     return div;
@@ -123,10 +118,9 @@ function renderHistory() {
     allSessions.slice().reverse().forEach(s => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.style.color = "white";
         div.style.padding = "10px";
         div.style.borderBottom = "1px solid #222";
-        div.innerText = s.messages.find(m => m.role === 'user')?.text.substring(0, 25) || "Chat";
+        div.innerText = s.messages.find(m => m.role === 'user')?.text.substring(0, 20) || "Chat";
         div.onclick = () => { 
             currentSession = s; 
             chatView.innerHTML = ''; 
