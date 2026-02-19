@@ -14,15 +14,15 @@
     <div class="loader-content">
         <div class="loader-logo">APNA AI</div>
         <div class="bar-container"><div class="bar-fill"></div></div>
-        <p style="color: rgba(255,255,255,0.5); margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">POWERED BY MAGIC</p>
+        <p style="color: rgba(255,255,255,0.5); margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">MADE BY AYUSH</p>
     </div>
 </div>
 
 <div class="modal-overlay" id="confirm-modal-overlay">
     <div class="confirm-modal">
         <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff3b30; margin-bottom: 15px;"></i>
-        <h2 style="color:white; margin-bottom:10px;">Khatra!</h2>
-        <p style="color:#94a3b8; margin-bottom:20px;">Bhai, saara data udd jayega. Sure hai?</p>
+        <h2 style="color:white; margin-bottom:10px;">Alert!</h2>
+        <p style="color:#94a3b8; margin-bottom:20px;">"All your data will be lost, all the chats—would you still go ahead?"</p>
         <div style="display:flex; gap:10px;">
             <button class="modal-btn cancel" onclick="hideConfirmModal()">Nahi</button>
             <button class="modal-btn delete" onclick="finalDeactivate()">Uda De!</button>
@@ -32,10 +32,10 @@
 
 <div class="modal-overlay" id="name-modal-overlay">
     <div class="name-modal" id="name-modal">
-        <h2>Pehchaan Kaun?</h2>
-        <p style="color: #94a3b8; margin-bottom: 15px;">Bhai naam likh de, phir kaam shuru karte hain!</p>
+        <h2>Enter your name</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px;">"Write your name, only then we will talk using that name."</p>
         <input type="text" id="user-name-input" class="name-input" placeholder="Tera Naam..." autocomplete="off">
-        <button class="name-btn" onclick="saveUserName()">Chalo Shuru Karein!</button>
+        <button class="name-btn" onclick="saveUserName()">let's start</button>
     </div>
 </div>
 
@@ -66,7 +66,7 @@
         <div class="input-wrapper">
             <input type="file" id="file-picker" hidden accept="image/*" onchange="handleImageUpload(this)">
             <i class="fas fa-plus plus-btn" onclick="document.getElementById('file-picker').click()"></i>
-            <textarea id="msg-in" placeholder="Likh bhai..." rows="1"></textarea>
+            <textarea id="msg-in" placeholder="Ask anything..." rows="1"></textarea>
             <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
@@ -75,3 +75,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
