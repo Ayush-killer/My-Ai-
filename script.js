@@ -5,27 +5,21 @@ let userName = localStorage.getItem('ai_user_name');
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
-const VERCEL_URL = "TERA_VERCEL_BACKEND_URL"; 
+const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat"; // <--- APNA SAHI URL DAALNA YAHAN
 
 window.onload = () => {
     renderHistory();
-    // LOADING BAR STOP LOGIC
+    // Preloader 3 sec chalega
     setTimeout(() => {
         document.getElementById('loader').style.display = 'none';
-        if(!userName) { document.getElementById('name-modal-overlay').style.display = 'flex'; } 
-        else { showApp(); }
+        checkUser();
     }, 3000);
 };
 
-// IMAGE PREVIEW & SEND LOGIC
-function previewImage(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            addBubble('user', "Bhai ye dekh image:", e.target.result);
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
+function checkUser() {
+    if(!userName) {
+        document.getElementById('name-modal-overlay').style.display = 'flex';
+    } else { showApp(); }
 }
 
 function saveUserName() {
@@ -44,9 +38,21 @@ function showApp() {
     if (currentSession.messages.length === 0) startNewChat();
 }
 
+// IMAGE UPLOAD HANDLE
+function handleImageUpload(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            addBubble('user', "Ye image check kar:", e.target.result);
+            // AI ko bhej sakte ho yahan se
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
-    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram bhai! Bol kya karein?</div></div>`;
+    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya banau aaj?</div></div>`;
 }
 
 async function sendMsg() {
@@ -72,7 +78,7 @@ async function sendMsg() {
         else { addBubble('ai', data.choices[0].message.content); }
     } catch (e) {
         genBubble.remove();
-        addBubble('ai', "Bhai error aa gaya!");
+        addBubble('ai', "Bhai error aa gaya! Backend URL check kar.");
     }
 }
 
@@ -80,7 +86,7 @@ function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, text, img});
     const div = document.createElement('div');
     div.className = `${role}-msg`;
-    let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px;">` : '';
+    let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px; border:1px solid #444;">` : '';
     content += text ? `<div class="bubble">${text}</div>` : '';
     div.innerHTML = content;
     chatView.appendChild(div);
@@ -98,6 +104,7 @@ function addGeneratingBubble() {
     div.className = `ai-msg`;
     div.innerHTML = `<div class="bubble">Bhai soch raha hai...</div>`;
     chatView.appendChild(div);
+    chatView.scrollTop = chatView.scrollHeight;
     return div;
 }
 
