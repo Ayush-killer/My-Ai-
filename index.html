@@ -18,6 +18,7 @@
 <div class="modal-overlay" id="name-modal-overlay">
     <div class="name-modal" id="name-modal">
         <h2>Pehchaan Kaun?</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px;">Naam likh bhai, tabhi chat chalegi!</p>
         <input type="text" id="user-name-input" class="name-input" placeholder="Tera Naam..." autocomplete="off">
         <button class="name-btn" onclick="saveUserName()">Chalo Shuru Karein!</button>
     </div>
@@ -41,11 +42,11 @@
 
     <div class="input-section">
         <label class="image-gen-box" for="img-toggle">
-            <span><i class="fas fa-magic"></i> Image Mode</span>
+            <span><i class="fas fa-magic"></i> Image Generation Mode</span>
             <div class="switch"><input type="checkbox" id="img-toggle"><span class="slider"></span></div>
         </label>
         <div class="input-wrapper">
-            <input type="file" id="file-picker" hidden accept="image/*" onchange="previewImage(this)">
+            <input type="file" id="file-picker" hidden accept="image/*" onchange="handleImageUpload(this)">
             <i class="fas fa-plus plus-btn" onclick="document.getElementById('file-picker').click()"></i>
             
             <textarea id="msg-in" placeholder="Likh bhai..." rows="1"></textarea>
