@@ -1,26 +1,72 @@
+/* ... Tera Purana Poora Logic Rahega ... */
+
+// Naye Functions
+function showConfirmModal() {
+    document.getElementById('confirm-modal-overlay').classList.add('active');
+}
+function hideConfirmModal() {
+    document.getElementById('confirm-modal-overlay').classList.remove('active');
+}
+function finalDeactivate() {
+    localStorage.clear();
+    location.reload();
+}
+
+function copyText(btn, text) {
+    navigator.clipboard.writeText(text);
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => btn.innerHTML = original, 2000);
+}
+
+// Teri addBubble Function Updated (Copy button ke liye)
+function addBubble(role, text, img = null, save = true) {
+    if(save) currentSession.messages.push({role, text, img});
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.className = `${role}-msg`;
+    
+    let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.1);">` : '';
+    content += text ? `<div class="bubble">${text}</div>` : '';
+    
+    // Copy button only for AI or text messages
+    if(text && !img) {
+        content += `<div class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="fas fa-copy"></i> Copy</div>`;
+    }
+
+    container.innerHTML = content;
+    chatView.appendChild(container);
+    chatView.scrollTop = chatView.scrollHeight;
+    
+    if(save) {
+        const idx = allSessions.findIndex(s => s.id === currentSession.id);
+        if(idx === -1) allSessions.push(currentSession); else allSessions[idx] = currentSession;
+        localStorage.setItem('ai_sessions', JSON.stringify(allSessions));
+        renderHistory();
+    }
+}
+
+// --- TERI BAAKI SARI FUNCTIONS SAME RAHENGI ---
 let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
 let currentSession = { id: Date.now(), messages: [] };
 let userName = localStorage.getItem('ai_user_name');
-
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
-const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat"; // <--- APNA SAHI URL DAALNA YAHAN
+const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat"; 
 
 window.onload = () => {
     renderHistory();
-    // Preloader 3 sec chalega
     setTimeout(() => {
-        document.getElementById('loader').style.display = 'none';
-        checkUser();
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            if(!userName) { document.getElementById('name-modal-overlay').style.display = 'flex'; } 
+            else { showApp(); }
+        }, 500);
     }, 3000);
 };
-
-function checkUser() {
-    if(!userName) {
-        document.getElementById('name-modal-overlay').style.display = 'flex';
-    } else { showApp(); }
-}
 
 function saveUserName() {
     const input = document.getElementById('user-name-input');
@@ -33,26 +79,22 @@ function saveUserName() {
 }
 
 function showApp() {
-    document.getElementById('app').classList.add('visible');
+    document.getElementById('app').style.display = 'flex';
     document.getElementById('user-display').innerText = `Hi, ${userName}`;
     if (currentSession.messages.length === 0) startNewChat();
 }
 
-// IMAGE UPLOAD HANDLE
 function handleImageUpload(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            addBubble('user', "Ye image check kar:", e.target.result);
-            // AI ko bhej sakte ho yahan se
-        };
+        reader.onload = function(e) { addBubble('user', "Ye image check kar:", e.target.result); };
         reader.readAsDataURL(input.files[0]);
     }
 }
 
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
-    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya banau aaj?</div></div>`;
+    chatView.innerHTML = `<div class="ai-msg"><div class="bubble">Ram Ram <b>${userName}</b> bhai! Bol kya banau?</div></div>`;
 }
 
 async function sendMsg() {
@@ -78,31 +120,14 @@ async function sendMsg() {
         else { addBubble('ai', data.choices[0].message.content); }
     } catch (e) {
         genBubble.remove();
-        addBubble('ai', "Bhai error aa gaya! Backend URL check kar.");
-    }
-}
-
-function addBubble(role, text, img = null, save = true) {
-    if(save) currentSession.messages.push({role, text, img});
-    const div = document.createElement('div');
-    div.className = `${role}-msg`;
-    let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px; border:1px solid #444;">` : '';
-    content += text ? `<div class="bubble">${text}</div>` : '';
-    div.innerHTML = content;
-    chatView.appendChild(div);
-    chatView.scrollTop = chatView.scrollHeight;
-    if(save) {
-        const idx = allSessions.findIndex(s => s.id === currentSession.id);
-        if(idx === -1) allSessions.push(currentSession); else allSessions[idx] = currentSession;
-        localStorage.setItem('ai_sessions', JSON.stringify(allSessions));
-        renderHistory();
+        addBubble('ai', "Bhai error aa gaya!");
     }
 }
 
 function addGeneratingBubble() {
     const div = document.createElement('div');
     div.className = `ai-msg`;
-    div.innerHTML = `<div class="bubble">Bhai soch raha hai...</div>`;
+    div.innerHTML = `<div class="bubble">Wait kar bhai...</div>`;
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
     return div;
