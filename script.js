@@ -59,7 +59,6 @@ const imgToggle = document.getElementById('img-toggle');
 const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app/api/chat";
 
 
-
 window.onload = () => {
     renderHistory();
     setTimeout(() => {
@@ -170,5 +169,6 @@ function renderHistory() {
         list.appendChild(div);
     });
 }
+
 
 
