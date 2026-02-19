@@ -54,7 +54,7 @@ let userName = localStorage.getItem('ai_user_name');
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
-const VERCEL_URL = "apna-ai-backend-jd8f-7c7b8gl2a-ayush-killers-projects.vercel.app; 
+const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app"; 
 
 window.onload = () => {
     renderHistory();
@@ -154,4 +154,5 @@ function renderHistory() {
         list.appendChild(div);
     });
 }
+
 
