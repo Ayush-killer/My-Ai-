@@ -19,21 +19,59 @@ function copyText(btn, text) {
     setTimeout(() => btn.innerHTML = original, 2000);
 }
 
-// UPDATE: AI ke professional look ke liye isko thoda saaf kiya hai
+// TYPING EFFECT FUNCTION: Asli chatbot feel ke liye
+function typeWriter(element, html, speed = 15) {
+    let i = 0;
+    element.innerHTML = "";
+    // Temporarily hidden div to calculate full HTML structure
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const plainText = temp.innerText;
+    
+    function type() {
+        if (i < plainText.length) {
+            element.innerText += plainText.charAt(i);
+            i++;
+            chatView.scrollTop = chatView.scrollHeight;
+            setTimeout(type, speed);
+        } else {
+            // Typing khatam hone ke baad asli HTML (headings/bold) set kar do
+            element.innerHTML = html;
+        }
+    }
+    type();
+}
+
+// UPDATE: AI ke professional look aur Typing Effect ke liye
 function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, text, img});
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
+    // User msg right mein aur AI left mein chipka rahega
+    container.style.alignItems = role === 'user' ? 'flex-end' : 'flex-start';
     container.className = `${role}-msg`;
     
     let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.1);">` : '';
     
-    // Yahan 'white-space: pre-wrap' lagaya hai taaki line breaks aur points saaf dikhein
     if (text) {
+        // MARKDOWN FIX: ## aur ** ko render karne ke liye
+        let formattedText = text
+            .replace(/## (.*?)(\n|$)/g, '<h3 style="margin:5px 0; color:#fff; font-size:1.1rem;">$1</h3>')
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+        // WIDTH FIX: 'width: fit-content' lagaya hai taaki "Hi" wala box chota rahe
         content += `
-            <div class="bubble" style="white-space: pre-wrap; line-height: 1.6; background: ${role === 'ai' ? 'transparent' : ''}; border: ${role === 'ai' ? 'none' : ''}; padding: ${role === 'ai' ? '10px 0' : ''};">
-                ${text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}
+            <div class="bubble" style="
+                white-space: pre-wrap; 
+                line-height: 1.6; 
+                width: fit-content; 
+                max-width: 85%;
+                background: ${role === 'ai' ? 'transparent' : ''}; 
+                border: ${role === 'ai' ? 'none' : ''}; 
+                padding: ${role === 'ai' ? '10px 0' : '10px 15px'};
+            ">
+                ${role === 'user' ? formattedText : '<span class="typing-area"></span>'}
             </div>
         `;
     }
@@ -44,6 +82,16 @@ function addBubble(role, text, img = null, save = true) {
 
     container.innerHTML = content;
     chatView.appendChild(container);
+    
+    // AI reply hai toh typing effect shuru karo
+    if(role === 'ai' && text && !img) {
+        let target = container.querySelector('.typing-area');
+        let htmlContent = text
+            .replace(/## (.*?)(\n|$)/g, '<h3 style="margin:5px 0; color:#fff; font-size:1.1rem;">$1</h3>')
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        typeWriter(target, htmlContent);
+    }
+
     chatView.scrollTop = chatView.scrollHeight;
     
     if(save) {
@@ -144,7 +192,7 @@ async function sendMsg() {
 function addGeneratingBubble() {
     const div = document.createElement('div');
     div.className = `ai-msg`;
-    div.innerHTML = `<div class="bubble">Wait kar bhai...</div>`;
+    div.innerHTML = `<div class="bubble" style="color:#888; font-style:italic;">AI is typing...</div>`;
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
     return div;
@@ -172,3 +220,4 @@ function renderHistory() {
         list.appendChild(div);
     });
 }
+    
