@@ -6,19 +6,16 @@
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
 body { background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
 
-/* Loader */
 .preloader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; }
 .bar-container { width: 200px; height: 3px; background: rgba(255,255,255,0.1); margin-top: 20px; }
 .bar-fill { width: 0%; height: 100%; background: var(--accent); animation: load 3s linear forwards; }
 @keyframes load { 100% { width: 100%; } }
 
-/* App Layout */
 .main-app { display: none; height: 100vh; flex-direction: column; }
 .main-app.visible { display: flex; }
 
-.header { height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg); z-index: 10; }
+.header { height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
 
-/* Chat View: Isme padding-bottom zaroori hai */
 .chat-view { 
     flex: 1; 
     overflow-y: auto; 
@@ -26,23 +23,23 @@ body { background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
     display: flex; 
     flex-direction: column; 
     gap: 15px; 
-    padding-bottom: 160px; /* Space for fixed input */
+    padding-bottom: 160px; /* Input ke liye jagah */
 }
 
-/* Input Area: Isko Fixed kiya hai ek jageh */
+/* Fixed Input Box */
 .input-section { 
     position: fixed; 
     bottom: 0; 
     left: 0; 
     width: 100%; 
     background: var(--bg); 
-    padding: 15px; 
+    padding: 10px 15px 30px; 
     border-top: 1px solid var(--border);
     z-index: 100;
 }
 
 .image-gen-box { 
-    margin-bottom: 10px; 
+    margin-bottom: 8px; 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
@@ -50,14 +47,13 @@ body { background:var(--bg); color:var(--text); height:100vh; overflow:hidden; }
     padding: 10px 15px; 
     border-radius: 12px; 
     font-size: 0.8rem;
-    color: var(--text-dim);
 }
 
 .input-wrapper { 
     background: var(--card); 
     border: 1px solid var(--border); 
     border-radius: 25px; 
-    padding: 10px 15px; 
+    padding: 8px 15px; 
     display: flex; 
     align-items: center; 
     gap: 10px; 
@@ -67,14 +63,12 @@ textarea { flex: 1; background: transparent; border: none; color: white; outline
 .send-btn { background: transparent; border: none; color: var(--accent); font-size: 1.3rem; cursor: pointer; }
 .plus-btn { color: var(--accent); cursor: pointer; }
 
-/* Bubbles */
-.bubble { max-width: 85%; padding: 12px 18px; border-radius: 20px; line-height: 1.5; font-size: 0.95rem; }
+.bubble { max-width: 85%; padding: 12px 18px; border-radius: 20px; line-height: 1.5; }
 .user-msg { align-self: flex-end; }
 .user-msg .bubble { background: var(--accent-grad); border-bottom-right-radius: 4px; }
 .ai-msg { align-self: flex-start; }
 .ai-msg .bubble { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 
-/* Switch */
 .switch { position: relative; width: 40px; height: 20px; }
 .switch input { opacity: 0; }
 .slider { position: absolute; inset: 0; background: #333; border-radius: 20px; transition: .4s; }
@@ -82,10 +76,9 @@ textarea { flex: 1; background: transparent; border: none; color: white; outline
 input:checked + .slider { background: var(--accent-grad); }
 input:checked + .slider:before { transform: translateX(20px); }
 
-/* Modals & Sidebar */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 11000; }
-.name-modal { background: var(--card); padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; }
-.name-input { width: 100%; background: #000; border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: white; margin: 15px 0; }
+.name-modal { background: var(--card); padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 400px; }
+.name-input { width: 100%; background: #000; border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: white; margin: 15px 0; text-align: center; }
 .name-btn { background: var(--accent-grad); color: white; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: bold; }
 
 .sidebar { position: fixed; left: -280px; width: 280px; height: 100%; background: var(--sidebar-bg); z-index: 1001; transition: 0.3s; padding: 20px; }
