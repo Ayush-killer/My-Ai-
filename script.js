@@ -42,34 +42,31 @@ function typeWriter(element, html, speed = 15) {
     type();
 }
 
-// UPDATE: AI ke professional look aur Typing Effect ke liye
+// UPDATE: Hashtag (#) aur Spacing ki problem fix ki hai
 function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, text, img});
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.flexDirection = 'column';
-    // User msg right mein aur AI left mein chipka rahega
     container.style.alignItems = role === 'user' ? 'flex-end' : 'flex-start';
     container.className = `${role}-msg`;
     
-    let content = img ? `<img src="${img}" style="width:100%; border-radius:15px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.1);">` : '';
+    let content = img ? `<img src="${img}" style="max-width:80%; border-radius:15px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.1);">` : '';
     
     if (text) {
-        // MARKDOWN FIX: ## aur ** ko render karne ke liye
+        // MARKDOWN FIX: Ek # ho ya teen ###, ab sab properly Heading banenge aur khali # gayab ho jayenge.
         let formattedText = text
-            .replace(/## (.*?)(\n|$)/g, '<h3 style="margin:5px 0; color:#fff; font-size:1.1rem;">$1</h3>')
+            .replace(/^#{1,3}\s*(.*)$/gm, function(match, p1) { 
+                if(p1.trim() === '') return ''; // Khali # ko uda dega
+                return `<h3 style="margin:18px 0 6px 0; color:#fff; font-size:1.15rem;">${p1}</h3>`; 
+            })
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 
-        // WIDTH FIX: 'width: fit-content' lagaya hai taaki "Hi" wala box chota rahe
+        // JS mein extra inline width hata di taaki CSS se proper size aaye
         content += `
             <div class="bubble" style="
                 white-space: pre-wrap; 
-                line-height: 1.6; 
-                width: fit-content; 
-                max-width: 85%;
-                background: ${role === 'ai' ? 'transparent' : ''}; 
-                border: ${role === 'ai' ? 'none' : ''}; 
-                padding: ${role === 'ai' ? '10px 0' : '10px 15px'};
+                ${role === 'ai' ? 'background: transparent; border: none; padding: 5px 0;' : ''}
             ">
                 ${role === 'user' ? formattedText : '<span class="typing-area"></span>'}
             </div>
@@ -77,17 +74,19 @@ function addBubble(role, text, img = null, save = true) {
     }
     
     if(text && !img && role === 'ai') {
-        content += `<div class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="fas fa-copy"></i> Copy</div>`;
+        content += `<div class="copy-btn" style="margin-top:10px;" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="fas fa-copy"></i> Copy</div>`;
     }
 
     container.innerHTML = content;
     chatView.appendChild(container);
     
-    // AI reply hai toh typing effect shuru karo
     if(role === 'ai' && text && !img) {
         let target = container.querySelector('.typing-area');
         let htmlContent = text
-            .replace(/## (.*?)(\n|$)/g, '<h3 style="margin:5px 0; color:#fff; font-size:1.1rem;">$1</h3>')
+            .replace(/^#{1,3}\s*(.*)$/gm, function(match, p1) { 
+                if(p1.trim() === '') return '';
+                return `<h3 style="margin:18px 0 6px 0; color:#fff; font-size:1.15rem;">${p1}</h3>`; 
+            })
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
         typeWriter(target, htmlContent);
     }
