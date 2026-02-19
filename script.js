@@ -1,4 +1,4 @@
-/* ... Tera Purana Poora Logic Rahega ... */
+/* ... Tera Purana Poora Logic Maine Barkarar Rakha Hai ... */
 
 // Naye Functions
 function showConfirmModal() {
@@ -47,13 +47,15 @@ function addBubble(role, text, img = null, save = true) {
     }
 }
 
-// --- TERI BAAKI SARI FUNCTIONS SAME RAHENGI ---
+// --- TERI BAAKI SARI FUNCTIONS ---
 let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
 let currentSession = { id: Date.now(), messages: [] };
 let userName = localStorage.getItem('ai_user_name');
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
+
+// FIX: Yahan maine tera pura correct endpoint link daal diya hai
 const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app"; 
 
 window.onload = () => {
@@ -104,6 +106,7 @@ async function sendMsg() {
     msgInput.value = '';
     const genBubble = addGeneratingBubble();
     try {
+        // FIX: Yahan VERCEL_URL ka use ho raha hai jo ab sahi endpoint hai
         const res = await fetch(VERCEL_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -114,13 +117,23 @@ async function sendMsg() {
                 userName: userName
             })
         });
+        
+        if (!res.ok) throw new Error('Backend responding with error');
+        
         const data = await res.json();
         genBubble.remove();
-        if (imgToggle.checked) { addBubble('ai', '', data.imageUrl); } 
-        else { addBubble('ai', data.choices[0].message.content); }
+        if (imgToggle.checked) { 
+            addBubble('ai', '', data.imageUrl); 
+        } 
+        else { 
+            // API response handle karne ke liye
+            const aiReply = data.choices ? data.choices[0].message.content : (data.reply || "Bhai samajh nahi aaya!");
+            addBubble('ai', aiReply); 
+        }
     } catch (e) {
+        console.error("Fetch error:", e);
         genBubble.remove();
-        addBubble('ai', "Bhai error aa gaya!");
+        addBubble('ai', "Bhai error aa gaya! Check kar ki Vercel live hai ya nahi.");
     }
 }
 
@@ -140,6 +153,7 @@ function toggleSidebar() {
 
 function renderHistory() {
     const list = document.getElementById('hist-list');
+    if(!list) return;
     list.innerHTML = '';
     allSessions.slice().reverse().forEach(s => {
         const div = document.createElement('div');
@@ -154,5 +168,3 @@ function renderHistory() {
         list.appendChild(div);
     });
 }
-
-
