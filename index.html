@@ -11,14 +11,29 @@
 <body>
 
 <div class="preloader" id="loader">
-    <div style="font-size:3rem; font-weight:800; color:white;">APNA AI</div>
-    <div class="bar-container"><div class="bar-fill"></div></div>
+    <div class="loader-content">
+        <div class="loader-logo">APNA AI</div>
+        <div class="bar-container"><div class="bar-fill"></div></div>
+        <p style="color: rgba(255,255,255,0.5); margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">POWERED BY MAGIC</p>
+    </div>
+</div>
+
+<div class="modal-overlay" id="confirm-modal-overlay">
+    <div class="confirm-modal">
+        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff3b30; margin-bottom: 15px;"></i>
+        <h2 style="color:white; margin-bottom:10px;">Khatra!</h2>
+        <p style="color:#94a3b8; margin-bottom:20px;">Bhai, saara data udd jayega. Sure hai?</p>
+        <div style="display:flex; gap:10px;">
+            <button class="modal-btn cancel" onclick="hideConfirmModal()">Nahi</button>
+            <button class="modal-btn delete" onclick="finalDeactivate()">Uda De!</button>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="name-modal-overlay">
     <div class="name-modal" id="name-modal">
         <h2>Pehchaan Kaun?</h2>
-        <p style="color: #94a3b8; margin-bottom: 15px;">Naam likh bhai, tabhi chat chalegi!</p>
+        <p style="color: #94a3b8; margin-bottom: 15px;">Bhai naam likh de, phir kaam shuru karte hain!</p>
         <input type="text" id="user-name-input" class="name-input" placeholder="Tera Naam..." autocomplete="off">
         <button class="name-btn" onclick="saveUserName()">Chalo Shuru Karein!</button>
     </div>
@@ -29,9 +44,12 @@
 <div class="sidebar" id="sidebar">
     <h3 style="margin-bottom:20px; color:white;">History</h3>
     <div class="history-list" id="hist-list"></div>
+    <div class="deactivate-btn" onclick="showConfirmModal()">
+        <i class="fas fa-user-slash"></i> Deactivate
+    </div>
 </div>
 
-<div class="main-app" id="app">
+<div class="main-app" id="app" style="display: none;">
     <header class="header">
         <div class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
         <div id="user-display" style="font-weight:800; color:#94a3b8;"></div>
@@ -48,7 +66,6 @@
         <div class="input-wrapper">
             <input type="file" id="file-picker" hidden accept="image/*" onchange="handleImageUpload(this)">
             <i class="fas fa-plus plus-btn" onclick="document.getElementById('file-picker').click()"></i>
-            
             <textarea id="msg-in" placeholder="Likh bhai..." rows="1"></textarea>
             <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
         </div>
