@@ -168,7 +168,4 @@ function renderHistory() {
         };
         list.appendChild(div);
     });
-}
-
-
-
+            }
