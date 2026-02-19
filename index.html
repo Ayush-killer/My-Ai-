@@ -46,7 +46,9 @@
             <div class="switch"><input type="checkbox" id="img-toggle"><span class="slider"></span></div>
         </label>
         <div class="input-wrapper">
-            <i class="fas fa-plus plus-btn"></i>
+            <input type="file" id="image-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+            <i class="fas fa-plus plus-btn" onclick="document.getElementById('image-upload').click()"></i>
+            
             <textarea id="msg-in" placeholder="Ask or generate image..." rows="1"></textarea>
             <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
         </div>
