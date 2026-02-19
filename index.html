@@ -18,7 +18,6 @@
 <div class="modal-overlay" id="name-modal-overlay">
     <div class="name-modal" id="name-modal">
         <h2>Pehchaan Kaun?</h2>
-        <p>Bhai naam likh de, phir baat karte hain!</p>
         <input type="text" id="user-name-input" class="name-input" placeholder="Tera Naam..." autocomplete="off">
         <button class="name-btn" onclick="saveUserName()">Chalo Shuru Karein!</button>
     </div>
@@ -46,10 +45,10 @@
             <div class="switch"><input type="checkbox" id="img-toggle"><span class="slider"></span></div>
         </label>
         <div class="input-wrapper">
-            <input type="file" id="image-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
-            <i class="fas fa-plus plus-btn" onclick="document.getElementById('image-upload').click()"></i>
+            <input type="file" id="file-picker" hidden accept="image/*" onchange="previewImage(this)">
+            <i class="fas fa-plus plus-btn" onclick="document.getElementById('file-picker').click()"></i>
             
-            <textarea id="msg-in" placeholder="Ask or generate image..." rows="1"></textarea>
+            <textarea id="msg-in" placeholder="Likh bhai..." rows="1"></textarea>
             <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
