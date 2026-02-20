@@ -94,19 +94,30 @@ function startNewChat() {
 }
 
 // LOADER LOGIC
+// LOADER LOGIC - Fix for stuck screen
 window.onload = () => {
     renderHistory();
-    // 3 seconds baad loader jayega
+    
+    // Sirf 3 second ka wait aur fir seedha app open
     setTimeout(() => {
         const loader = document.getElementById('loader');
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-            if(!userName) document.getElementById('name-modal-overlay').style.display = 'flex';
-            else showApp();
-        }, 500);
-    }, 3000);
+        if (loader) {
+            loader.style.opacity = '0';
+            // Smooth transition ke baad display none
+            setTimeout(() => {
+                loader.style.display = 'none';
+                
+                // Check if user exists, then show app or modal
+                if (!userName) {
+                    document.getElementById('name-modal-overlay').style.display = 'flex';
+                } else {
+                    showApp();
+                }
+            }, 500); // 0.5s fade out time
+        }
+    }, 3000); // Sharp 3 seconds loading
 };
+
 
 function saveUserName() {
     const input = document.getElementById('user-name-input');
@@ -163,3 +174,4 @@ function handleImageUpload(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
