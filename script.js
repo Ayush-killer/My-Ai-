@@ -93,10 +93,8 @@ async function sendMsg() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                type: 'chat', // Sirf chat bhej rahe hain
-                prompt: text,
                 userName: userName,
-                messages: currentChat.slice(-10) // Context ke liye last 10 messages
+                messages: currentChat.slice(-10)
             })
         });
 
@@ -105,7 +103,7 @@ async function sendMsg() {
         const data = await response.json();
         aiGenDiv.remove();
 
-        const aiReply = data.choices[0].message.content;
+        const aiReply = data?.choices?.[0]?.message?.content || "No response received.";
         addBubble('ai', aiReply);
         currentChat.push({ role: 'ai', content: aiReply });
         
@@ -131,66 +129,3 @@ function addBubble(role, content) {
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
 }
-
-function saveCurrentSession() {
-    if (currentChat.length === 0) return;
-    const title = currentChat.find(m => m.role === 'user')?.content.substring(0, 25) || "Conversation";
-    const idx = chatSessions.findIndex(s => s.id === currentSessionId);
-    if (idx > -1) chatSessions[idx].messages = currentChat;
-    else chatSessions.unshift({ id: currentSessionId, title: title + "...", messages: currentChat });
-    localStorage.setItem('ayush_sessions', JSON.stringify(chatSessions));
-    renderHistory();
-}
-
-function renderHistory() {
-    histList.innerHTML = '';
-    chatSessions.forEach(session => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = `<i class="far fa-comment-alt"></i> ${session.title}`;
-        div.onclick = () => {
-            currentSessionId = session.id;
-            currentChat = [...session.messages];
-            chatView.innerHTML = '';
-            currentChat.forEach(m => addBubble(m.role, m.content));
-            toggleSidebar();
-        };
-        histList.appendChild(div);
-    });
-}
-
-function toggleSidebar() {
-    const sb = document.getElementById('sidebar');
-    const ov = document.getElementById('overlay');
-    sb.classList.toggle('active');
-    ov.style.display = sb.classList.contains('active') ? 'block' : 'none';
-}
-
-function createNewChat() {
-    currentChat = [];
-    currentSessionId = Date.now();
-    chatView.innerHTML = '';
-    addBubble('ai', "Nayi chat shuru karein.");
-    if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
-}
-
-function openConfirm() { showModal('confirm-modal'); }
-function closeConfirm() { hideModal('confirm-modal'); }
-
-function finalClearData() {
-    localStorage.clear();
-    userName = null;
-    chatSessions = [];
-    currentChat = [];
-    hideModal('confirm-modal');
-    if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
-    app.style.display = 'none';
-    renderHistory();
-    setTimeout(() => {
-        document.getElementById('user-name-input').value = '';
-        runInitialLoading(); 
-    }, 500);
-}
-    
-
-
