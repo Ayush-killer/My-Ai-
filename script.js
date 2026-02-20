@@ -44,14 +44,26 @@ function hideModal(id) {
 function runInitialLoading() {
     loader.style.display = 'flex';
     loader.style.opacity = '1';
+
+    // Force reflow (important for animation properly work)
+    loader.offsetHeight;
+
     setTimeout(() => {
+        loader.style.transition = "opacity 0.5s ease";
         loader.style.opacity = '0';
+
         setTimeout(() => {
             loader.style.display = 'none';
-            if (!userName) showModal('name-modal');
-            else startApp();
+
+            if (!userName) {
+                showModal('name-modal');
+            } else {
+                startApp();
+            }
+
         }, 500);
-    }, 3000);
+
+    }, 5000); // ✅ 5 SECOND LOADING
 }
 
 window.onload = () => { renderHistory(); runInitialLoading(); };
@@ -129,3 +141,4 @@ function addBubble(role, content) {
     chatView.appendChild(div);
     chatView.scrollTop = chatView.scrollHeight;
 }
+
