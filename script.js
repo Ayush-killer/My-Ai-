@@ -95,28 +95,6 @@ function startNewChat() {
 
 // LOADER LOGIC
 // LOADER LOGIC - Fix for stuck screen
-window.onload = () => {
-    renderHistory();
-    
-    // Sirf 3 second ka wait aur fir seedha app open
-    setTimeout(() => {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.style.opacity = '0';
-            // Smooth transition ke baad display none
-            setTimeout(() => {
-                loader.style.display = 'none';
-                
-                // Check if user exists, then show app or modal
-                if (!userName) {
-                    document.getElementById('name-modal-overlay').style.display = 'flex';
-                } else {
-                    showApp();
-                }
-            }, 500); // 0.5s fade out time
-        }
-    }, 3000); // Sharp 3 seconds loading
-};
 
 
 function saveUserName() {
@@ -130,7 +108,40 @@ function saveUserName() {
 }
 
 function showApp() {
-    document.getElementById('app').style.display = 'flex';
+    document.getEle// 1. Updated showApp Function (Pakka dikhane ke liye)
+function showApp() {
+    const appElement = document.getElementById('app');
+    if (appElement) {
+        appElement.style.setProperty('display', 'flex', 'important'); // Force display
+        document.getElementById('user-display').innerText = userName;
+        if(currentSession.messages.length === 0) startNewChat();
+    }
+}
+
+// 2. Updated Loader Logic (3 Second Sharp Fix)
+window.onload = () => {
+    renderHistory();
+    
+    setTimeout(() => {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            
+            setTimeout(() => {
+                loader.style.display = 'none';
+                
+                // Agar naam saved hai toh seedha app dikhao
+                if (userName && userName !== "null") {
+                    showApp();
+                } else {
+                    const nameModal = document.getElementById('name-modal-overlay');
+                    if(nameModal) nameModal.style.display = 'flex';
+                }
+            }, 500); // Smooth transition
+        }
+    }, 3000); // Poore 3 second baad
+};
+    mentById('app').style.display = 'flex';
     document.getElementById('user-display').innerText = userName;
     if(currentSession.messages.length === 0) startNewChat();
 }
@@ -174,4 +185,5 @@ function handleImageUpload(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
 
