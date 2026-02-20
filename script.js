@@ -1,193 +1,215 @@
-// ================================
-// VARIABLES
-// ================================
-let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
-let currentSession = { id: Date.now(), messages: [] };
-let userName = localStorage.getItem('ai_user_name');
-
+const loader = document.getElementById('loader');
+const nameModal = document.getElementById('name-modal');
+const app = document.getElementById('app');
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
-const imgToggle = document.getElementById('img-toggle');
+const histList = document.getElementById('hist-list');
+const imgPreviewContainer = document.getElementById('image-preview-container');
+const imgPreview = document.getElementById('image-preview');
 
+// TERA VERCEL URL SAHI JAGAH PAR
 const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat";
 
-// ================================
-// LOADER LOGIC - FIXED
-// ================================
-document.addEventListener("DOMContentLoaded", function () {
-    const loader = document.getElementById("loader");
-    const app = document.getElementById("app");
-    const nameModal = document.getElementById("name-modal-overlay");
+let userName = localStorage.getItem('ayush_chat_user');
+let chatSessions = JSON.parse(localStorage.getItem('ayush_sessions')) || [];
+let currentChat = [];
+let currentSessionId = Date.now();
+let selectedImageBase64 = null;
 
+function runInitialLoading() {
+    loader.style.display = 'flex';
+    loader.style.opacity = '1';
     setTimeout(() => {
-        if (loader) {
-            loader.style.opacity = "0";
-            setTimeout(() => {
-                loader.style.display = "none";
-
-                if (!userName) {
-                    if (nameModal) nameModal.style.display = "flex";
-                } else {
-                    showApp();
-                }
-            }, 500);
-        }
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            if (!userName) showModal('name-modal');
+            else startApp();
+        }, 500);
     }, 3000);
-});
+}
 
-// ================================
-// SHOW APP
-// ================================
-function showApp() {
-    const app = document.getElementById("app");
-    if(app) {
-        app.style.display = "flex";
-        document.getElementById('user-display').innerText = userName;
-        if(currentSession.messages.length === 0) startNewChat();
+window.onload = () => { renderHistory(); runInitialLoading(); };
+
+function startApp() {
+    app.style.display = 'block';
+    chatView.innerHTML = '';
+    addBubble('ai', `Welcome back, <b>${userName}</b>!`);
+}
+
+function saveName() {
+    const val = document.getElementById('user-name-input').value.trim();
+    if (val) {
+        userName = val;
+        localStorage.setItem('ayush_chat_user', userName);
+        hideModal('name-modal');
+        setTimeout(startApp, 400);
     }
 }
 
-// ================================
-// SAVE USER NAME
-// ================================
-function saveUserName() {
-    const input = document.getElementById('user-name-input');
-    if(input.value.trim()) {
-        userName = input.value.trim();
-        localStorage.setItem('ai_user_name', userName);
-        document.getElementById('name-modal-overlay').style.display = 'none';
-        showApp();
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            selectedImageBase64 = e.target.result;
+            imgPreview.src = selectedImageBase64;
+            imgPreviewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
     }
 }
 
-// ================================
-// TYPING EFFECT
-// ================================
-function typeWriter(element, text) {
-    let formattedText = text
-        .replace(/## (.*?)\n/g, '<h3>$1</h3>')
-        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-        .replace(/\n/g, '<br>');
-    element.innerHTML = formattedText;
-    chatView.scrollTop = chatView.scrollHeight;
+function clearImagePreview() {
+    selectedImageBase64 = null;
+    imgPreviewContainer.style.display = 'none';
+    document.getElementById('file-input').value = '';
 }
 
 // ================================
-// ADD BUBBLE
-// ================================
-function addBubble(role, text, img = null, save = true) {
-    if(save) currentSession.messages.push({role, content: text, img});
-    const container = document.createElement('div');
-    container.className = `${role}-msg`;
-    let content = img ? `<img src="${img}" style="max-width:100%; border-radius:12px; margin-bottom:10px; border:1px solid #f0f0f0;">` : '';
-    if(text) content += `<div class="bubble">${role === 'user' ? text : ''}</div>`;
-    if(role === 'ai' && text) content += `<div class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="far fa-copy"></i> Copy</div>`;
-    container.innerHTML = content;
-    chatView.appendChild(container);
-    if(role === 'ai' && text) {
-        const bubble = container.querySelector('.bubble');
-        typeWriter(bubble, text);
-    }
-    chatView.scrollTop = chatView.scrollHeight;
-    if(save) saveToLocal();
-}
-
-// ================================
-// SEND MESSAGE
+// SEND MESSAGE (VERCEL INTEGRATED)
 // ================================
 async function sendMsg() {
-    const val = msgInput.value.trim();
-    if(!val) return;
-    addBubble('user', val);
-    msgInput.value = '';
+    const text = msgInput.value.trim();
+    if (!text && !selectedImageBase64) return;
 
-    const genDiv = document.createElement('div');
-    genDiv.className = 'ai-msg';
-    genDiv.innerHTML = `<div class="bubble" style="color:#aaa;">Searching...</div>`;
-    chatView.appendChild(genDiv);
+    let messageContent = '';
+    if (selectedImageBase64) {
+        messageContent += `<img src="${selectedImageBase64}" class="chat-img-mini">`;
+    }
+    if (text) {
+        messageContent += `<span>${text}</span>`;
+    }
+
+    addBubble('user', messageContent);
+    currentChat.push({ role: 'user', content: text, image: selectedImageBase64 });
+    
+    msgInput.value = '';
+    clearImagePreview();
+
+    // AI Searching Loader
+    const aiGenDiv = document.createElement('div');
+    aiGenDiv.innerHTML = `<div style="padding:10px; color:#aaa; font-style:italic;">Searching...</div>`;
+    chatView.appendChild(aiGenDiv);
+    chatView.scrollTop = chatView.scrollHeight;
 
     try {
-        const res = await fetch(VERCEL_URL, {
+        const response = await fetch(VERCEL_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                type: imgToggle.checked ? 'image' : 'chat',
-                prompt: val,
-                messages: currentSession.messages.map(m => ({role: m.role, content: m.content})),
+                prompt: text,
+                image: selectedImageBase64,
+                messages: currentChat.map(m => ({role: m.role, content: m.content})),
                 userName: userName
             })
         });
-        const data = await res.json();
-        genDiv.remove();
-        if(imgToggle.checked) addBubble('ai', '', data.imageUrl);
-        else addBubble('ai', data.choices[0].message.content);
-    } catch (e) {
-        genDiv.innerHTML = "System Error. Check connection.";
+
+        const data = await response.json();
+        aiGenDiv.remove();
+
+        // Server se reply nikalna
+        const aiReply = data.reply || data.choices?.[0]?.message?.content || "No response from server.";
+        
+        currentChat.push({ role: 'ai', content: aiReply });
+        addBubble('ai', aiReply);
+        saveCurrentSession();
+
+    } catch (error) {
+        aiGenDiv.innerHTML = `<div style="color:red;">Error: System disconnect.</div>`;
     }
 }
 
-// ================================
-// SAVE TO LOCAL
-// ================================
-function saveToLocal() {
-    const idx = allSessions.findIndex(s => s.id === currentSession.id);
-    if(idx === -1) allSessions.push(currentSession);
-    else allSessions[idx] = currentSession;
-    localStorage.setItem('ai_sessions', JSON.stringify(allSessions));
+function saveCurrentSession() {
+    if (currentChat.length === 0) return;
+    const firstText = currentChat.find(m => m.role === 'user')?.content.replace(/<[^>]*>/g, '').substring(0, 20) || "Image Chat";
+    const idx = chatSessions.findIndex(s => s.id === currentSessionId);
+    if (idx > -1) chatSessions[idx].messages = currentChat;
+    else chatSessions.unshift({ id: currentSessionId, title: firstText + "...", messages: currentChat });
+    localStorage.setItem('ayush_sessions', JSON.stringify(chatSessions));
     renderHistory();
 }
 
-// ================================
-// START NEW CHAT
-// ================================
-function startNewChat() {
-    currentSession = { id: Date.now(), messages: [] };
-    chatView.innerHTML = '';
-    addBubble('ai', `Hello **${userName}**, how can I help you today?`, null, false);
-}
-
-// ================================
-// SIDEBAR TOGGLE
-// ================================
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
-}
-
-// ================================
-// RENDER HISTORY
-// ================================
 function renderHistory() {
-    const list = document.getElementById('hist-list');
-    if(!list) return;
-    list.innerHTML = '';
-    allSessions.slice().reverse().forEach(s => {
+    histList.innerHTML = '';
+    chatSessions.forEach(session => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerText = s.messages[0]?.content.substring(0, 30) || "Conversation";
-        div.onclick = () => {
-            currentSession = s;
-            chatView.innerHTML = '';
-            s.messages.forEach(m => addBubble(m.role, m.content, m.img, false));
-            toggleSidebar();
-        };
-        list.appendChild(div);
+        div.innerHTML = `<i class="far fa-message" style="margin-right:10px;"></i> ${session.title}`;
+        div.onclick = () => loadSession(session.id);
+        histList.appendChild(div);
     });
 }
 
-// ================================
-// COPY TEXT
-// ================================
-function copyText(btn, text) {
-    navigator.clipboard.writeText(text);
-    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
-    setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy', 2000);
+function loadSession(id) {
+    const s = chatSessions.find(x => x.id === id);
+    if (s) {
+        currentSessionId = s.id;
+        currentChat = [...s.messages];
+        chatView.innerHTML = '';
+        currentChat.forEach(m => {
+            let content = m.image ? `<img src="${m.image}" class="chat-img-mini">` : '';
+            content += m.content;
+            addBubble(m.role, content);
+        });
+        toggleSidebar();
+    }
 }
 
-// ================================
-// PLACEHOLDER FUNCTIONS
-// ================================
-function handleImageUpload(input){ /* implement if needed */ }
-function showConfirmModal(){ document.getElementById('confirm-modal-overlay').style.display='flex'; }
-function hideConfirmModal(){ document.getElementById('confirm-modal-overlay').style.display='none'; }
-function finalDeactivate(){ localStorage.clear(); location.reload(); }
+function createNewChat() {
+    currentChat = [];
+    currentSessionId = Date.now();
+    chatView.innerHTML = '';
+    addBubble('ai', "New chat shuru.");
+    if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
+}
+
+function addBubble(role, content) {
+    const div = document.createElement('div');
+    div.style.margin = "8px 0";
+    div.style.display = "flex";
+    div.style.flexDirection = "column";
+    const align = role === 'user' ? 'flex-end' : 'flex-start';
+    const bg = role === 'user' ? '#000' : '#f1f1f1';
+    const color = role === 'user' ? '#fff' : '#000';
+    div.innerHTML = `<div style="max-width:85%; padding:10px 14px; background:${bg}; color:${color}; border-radius:18px; align-self:${align}; font-size:0.95rem; font-weight:500;">${content}</div>`;
+    chatView.appendChild(div);
+    chatView.scrollTop = chatView.scrollHeight;
+}
+
+function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.getElementById('overlay');
+    sb.classList.toggle('active');
+    ov.style.display = sb.classList.contains('active') ? 'block' : 'none';
+}
+
+function showModal(id) {
+    const m = document.getElementById(id);
+    m.style.display = 'flex';
+    setTimeout(() => { m.style.opacity = '1'; }, 10);
+}
+
+function hideModal(id) {
+    const m = document.getElementById(id);
+    m.style.opacity = '0';
+    setTimeout(() => { m.style.display = 'none'; }, 300);
+}
+
+function openConfirm() { showModal('confirm-modal'); }
+function closeConfirm() { hideModal('confirm-modal'); }
+
+function finalClearData() {
+    localStorage.clear();
+    userName = null;
+    chatSessions = [];
+    currentChat = [];
+    hideModal('confirm-modal');
+    if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
+    app.style.display = 'none';
+    renderHistory();
+    setTimeout(() => {
+        document.getElementById('user-name-input').value = '';
+        runInitialLoading(); 
+    }, 400);
+}
