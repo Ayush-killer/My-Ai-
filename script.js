@@ -6,7 +6,7 @@ const msgInput = document.getElementById('msg-in');
 const histList = document.getElementById('hist-list');
 
 // TERA VERCEL URL
-const VERCEL_URL = "apna-ai-backend-jd8f.vercel.app/api/";
+const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app/api/chat";
 
 let userName = localStorage.getItem('ayush_chat_user');
 let chatSessions = JSON.parse(localStorage.getItem('ayush_sessions')) || [];
@@ -192,4 +192,5 @@ function finalClearData() {
     }, 500);
 }
     
+
 
