@@ -1,56 +1,106 @@
+// ================================
+// VARIABLES
+// ================================
 let allSessions = JSON.parse(localStorage.getItem('ai_sessions') || '[]');
 let currentSession = { id: Date.now(), messages: [] };
 let userName = localStorage.getItem('ai_user_name');
+
 const chatView = document.getElementById('chat-view');
 const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
+
 const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat";
 
+// ================================
+// LOADER LOGIC - FIXED
+// ================================
+document.addEventListener("DOMContentLoaded", function () {
+    const loader = document.getElementById("loader");
+    const app = document.getElementById("app");
+    const nameModal = document.getElementById("name-modal-overlay");
+
+    setTimeout(() => {
+        if (loader) {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+
+                if (!userName) {
+                    if (nameModal) nameModal.style.display = "flex";
+                } else {
+                    showApp();
+                }
+            }, 500);
+        }
+    }, 3000);
+});
+
+// ================================
+// SHOW APP
+// ================================
+function showApp() {
+    const app = document.getElementById("app");
+    if(app) {
+        app.style.display = "flex";
+        document.getElementById('user-display').innerText = userName;
+        if(currentSession.messages.length === 0) startNewChat();
+    }
+}
+
+// ================================
+// SAVE USER NAME
+// ================================
+function saveUserName() {
+    const input = document.getElementById('user-name-input');
+    if(input.value.trim()) {
+        userName = input.value.trim();
+        localStorage.setItem('ai_user_name', userName);
+        document.getElementById('name-modal-overlay').style.display = 'none';
+        showApp();
+    }
+}
+
+// ================================
 // TYPING EFFECT
+// ================================
 function typeWriter(element, text) {
     let formattedText = text
         .replace(/## (.*?)\n/g, '<h3>$1</h3>')
         .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
         .replace(/\n/g, '<br>');
-    
     element.innerHTML = formattedText;
     chatView.scrollTop = chatView.scrollHeight;
 }
 
+// ================================
+// ADD BUBBLE
+// ================================
 function addBubble(role, text, img = null, save = true) {
     if(save) currentSession.messages.push({role, content: text, img});
     const container = document.createElement('div');
     container.className = `${role}-msg`;
-    
     let content = img ? `<img src="${img}" style="max-width:100%; border-radius:12px; margin-bottom:10px; border:1px solid #f0f0f0;">` : '';
-    
-    if (text) {
-        content += `<div class="bubble">${role === 'user' ? text : ''}</div>`;
-    }
-
-    if(role === 'ai' && text) {
-        content += `<div class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="far fa-copy"></i> Copy</div>`;
-    }
-
+    if(text) content += `<div class="bubble">${role === 'user' ? text : ''}</div>`;
+    if(role === 'ai' && text) content += `<div class="copy-btn" onclick="copyText(this, \`${text.replace(/`/g, "\\`")}\`)"><i class="far fa-copy"></i> Copy</div>`;
     container.innerHTML = content;
     chatView.appendChild(container);
-
     if(role === 'ai' && text) {
         const bubble = container.querySelector('.bubble');
         typeWriter(bubble, text);
     }
-    
     chatView.scrollTop = chatView.scrollHeight;
     if(save) saveToLocal();
 }
 
+// ================================
+// SEND MESSAGE
+// ================================
 async function sendMsg() {
     const val = msgInput.value.trim();
     if(!val) return;
-    
     addBubble('user', val);
     msgInput.value = '';
-    
+
     const genDiv = document.createElement('div');
     genDiv.className = 'ai-msg';
     genDiv.innerHTML = `<div class="bubble" style="color:#aaa;">Searching...</div>`;
@@ -69,73 +119,44 @@ async function sendMsg() {
         });
         const data = await res.json();
         genDiv.remove();
-
-        if (imgToggle.checked) { 
-            addBubble('ai', '', data.imageUrl); 
-        } else { 
-            addBubble('ai', data.choices[0].message.content); 
-        }
+        if(imgToggle.checked) addBubble('ai', '', data.imageUrl);
+        else addBubble('ai', data.choices[0].message.content);
     } catch (e) {
         genDiv.innerHTML = "System Error. Check connection.";
     }
 }
 
+// ================================
+// SAVE TO LOCAL
+// ================================
 function saveToLocal() {
     const idx = allSessions.findIndex(s => s.id === currentSession.id);
-    if(idx === -1) allSessions.push(currentSession); else allSessions[idx] = currentSession;
+    if(idx === -1) allSessions.push(currentSession);
+    else allSessions[idx] = currentSession;
     localStorage.setItem('ai_sessions', JSON.stringify(allSessions));
     renderHistory();
 }
 
+// ================================
+// START NEW CHAT
+// ================================
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
     chatView.innerHTML = '';
     addBubble('ai', `Hello **${userName}**, how can I help you today?`, null, false);
 }
 
-// FIXED LOADER LOGIC
-window.onload = () => {
-    renderHistory();
-    setTimeout(() => {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-                if (!userName) {
-                    document.getElementById('name-modal-overlay').style.display = 'flex';
-                } else {
-                    showApp();
-                }
-            }, 500);
-        }
-    }, 3000); // Sharp 3 seconds
-};
-
-function showApp() {
-    const app = document.getElementById('app');
-    if(app) {
-        app.style.display = 'flex';
-        document.getElementById('user-display').innerText = userName;
-        if(currentSession.messages.length === 0) startNewChat();
-    }
-}
-
-function saveUserName() {
-    const input = document.getElementById('user-name-input');
-    if(input.value.trim()) {
-        userName = input.value.trim();
-        localStorage.setItem('ai_user_name', userName);
-        document.getElementById('name-modal-overlay').style.display = 'none';
-        showApp();
-    }
-}
-
+// ================================
+// SIDEBAR TOGGLE
+// ================================
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
 }
 
+// ================================
+// RENDER HISTORY
+// ================================
 function renderHistory() {
     const list = document.getElementById('hist-list');
     if(!list) return;
@@ -154,20 +175,19 @@ function renderHistory() {
     });
 }
 
+// ================================
+// COPY TEXT
+// ================================
 function copyText(btn, text) {
     navigator.clipboard.writeText(text);
     btn.innerHTML = '<i class="fas fa-check"></i> Copied';
     setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy', 2000);
 }
 
-function showConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'flex'; }
-function hideConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'none'; }
-function finalDeactivate() { localStorage.clear(); location.reload(); }
-
-function handleImageUpload(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => addBubble('user', "Image analysis requested:", e.target.result);
-        reader.readAsDataURL(input.files[0]);
-    }
-}
+// ================================
+// PLACEHOLDER FUNCTIONS
+// ================================
+function handleImageUpload(input){ /* implement if needed */ }
+function showConfirmModal(){ document.getElementById('confirm-modal-overlay').style.display='flex'; }
+function hideConfirmModal(){ document.getElementById('confirm-modal-overlay').style.display='none'; }
+function finalDeactivate(){ localStorage.clear(); location.reload(); }
