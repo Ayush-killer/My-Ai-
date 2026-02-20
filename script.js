@@ -1,144 +1,170 @@
-const loader = document.getElementById('loader');
-const nameModal = document.getElementById('name-modal');
-const app = document.getElementById('app');
-const chatView = document.getElementById('chat-view');
-const msgInput = document.getElementById('msg-in');
-const histList = document.getElementById('hist-list');
+// ===============================
+//        5 SECOND LOADER
+// ===============================
 
-// TERA VERCEL URL
-const VERCEL_URL = "https://apna-ai-backend-jd8f.vercel.app/api/chat";
+window.addEventListener("load", function () {
 
-let userName = localStorage.getItem('ayush_chat_user');
-let chatSessions = JSON.parse(localStorage.getItem('ayush_sessions')) || [];
-let currentChat = [];
-let currentSessionId = Date.now();
+    const loader = document.getElementById("loader");
+    const app = document.getElementById("app");
+    const nameModal = document.getElementById("name-modal");
 
-// ================================
-// SMOOTH MODAL ANIMATIONS
-// ================================
-function showModal(id) {
-    const m = document.getElementById(id);
-    m.style.display = 'flex';
-    m.style.opacity = '0';
-    const card = m.querySelector('.modal-card');
-    card.style.transform = 'scale(0.7)';
-    card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    
-    setTimeout(() => {
-        m.style.opacity = '1';
-        card.style.transform = 'scale(1)';
-    }, 50);
-}
+    if (!loader || !app) return;
 
-function hideModal(id) {
-    const m = document.getElementById(id);
-    const card = m.querySelector('.modal-card');
-    m.style.opacity = '0';
-    card.style.transform = 'scale(0.7)';
-    setTimeout(() => { m.style.display = 'none'; }, 400);
-}
+    loader.style.display = "flex";
+    app.style.display = "none";
 
-// ================================
-// LOADING & APP START
-// ================================
-function runInitialLoading() {
-    loader.style.display = 'flex';
-    loader.style.opacity = '1';
+    setTimeout(function () {
 
-    // Force reflow (important for animation properly work)
-    loader.offsetHeight;
-
-    setTimeout(() => {
+        loader.style.opacity = "0";
         loader.style.transition = "opacity 0.5s ease";
-        loader.style.opacity = '0';
 
-        setTimeout(() => {
-            loader.style.display = 'none';
+        setTimeout(function () {
 
-            if (!userName) {
-                showModal('name-modal');
+            loader.style.display = "none";
+
+            // Check if name already saved
+            const savedName = localStorage.getItem("apnaAI_username");
+
+            if (savedName) {
+                app.style.display = "block";
             } else {
-                startApp();
+                nameModal.style.display = "flex";
+                setTimeout(() => {
+                    nameModal.style.opacity = "1";
+                }, 100);
             }
 
         }, 500);
 
-    }, 5000); // ✅ 5 SECOND LOADING
-}
+    }, 5000); // EXACT 5 seconds
+});
 
-window.onload = () => { renderHistory(); runInitialLoading(); };
 
-function startApp() {
-    app.style.display = 'block';
-    chatView.innerHTML = '';
-    addBubble('ai', `Aaiye **${userName}**, main aapki kaise madad kar sakta hoon?`);
-}
+// ===============================
+//        SAVE NAME FUNCTION
+// ===============================
 
 function saveName() {
-    const val = document.getElementById('user-name-input').value.trim();
-    if (val) {
-        userName = val;
-        localStorage.setItem('ayush_chat_user', userName);
-        hideModal('name-modal');
-        setTimeout(startApp, 500);
+    const input = document.getElementById("user-name-input");
+    const name = input.value.trim();
+
+    if (name === "") {
+        alert("Please enter your name");
+        return;
     }
+
+    localStorage.setItem("apnaAI_username", name);
+
+    const nameModal = document.getElementById("name-modal");
+    const app = document.getElementById("app");
+
+    nameModal.style.opacity = "0";
+
+    setTimeout(() => {
+        nameModal.style.display = "none";
+        app.style.display = "block";
+    }, 400);
 }
 
-// ================================
-// SEND MESSAGE (ONLY CHAT)
-// ================================
-async function sendMsg() {
-    const text = msgInput.value.trim();
-    if (!text) return;
 
-    addBubble('user', text);
-    currentChat.push({ role: 'user', content: text });
-    msgInput.value = '';
+// ===============================
+//        SIDEBAR TOGGLE
+// ===============================
 
-    const aiGenDiv = document.createElement('div');
-    aiGenDiv.innerHTML = `<div style="padding:10px; color:#aaa; font-style:italic; font-size:0.85rem;">Thinking...</div>`;
-    chatView.appendChild(aiGenDiv);
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+
+// ===============================
+//        CREATE NEW CHAT
+// ===============================
+
+function createNewChat() {
+    const chatView = document.getElementById("chat-view");
+    chatView.innerHTML = "";
+}
+
+
+// ===============================
+//        SEND MESSAGE
+// ===============================
+
+function sendMsg() {
+
+    const input = document.getElementById("msg-in");
+    const chatView = document.getElementById("chat-view");
+
+    const message = input.value.trim();
+    if (message === "") return;
+
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "user-message";
+    msgDiv.innerText = message;
+
+    chatView.appendChild(msgDiv);
+
+    input.value = "";
     chatView.scrollTop = chatView.scrollHeight;
-
-    try {
-        const response = await fetch(VERCEL_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                userName: userName,
-                messages: currentChat.slice(-10)
-            })
-        });
-
-        if (!response.ok) throw new Error("Server Error");
-
-        const data = await response.json();
-        aiGenDiv.remove();
-
-        const aiReply = data?.choices?.[0]?.message?.content || "No response received.";
-        addBubble('ai', aiReply);
-        currentChat.push({ role: 'ai', content: aiReply });
-        
-        saveCurrentSession();
-
-    } catch (error) {
-        aiGenDiv.innerHTML = `<div style="color:red; font-size:0.8rem;">Disconnected. Check your internet or API.</div>`;
-    }
 }
 
-// ================================
-// BUBBLES & HISTORY
-// ================================
-function addBubble(role, content) {
-    const div = document.createElement('div');
-    div.style.margin = "10px 0";
-    div.style.display = "flex";
-    div.style.flexDirection = "column";
-    const align = role === 'user' ? 'flex-end' : 'flex-start';
-    const bg = role === 'user' ? '#000' : '#f2f2f2';
-    const color = role === 'user' ? '#fff' : '#000';
-    div.innerHTML = `<div style="max-width:85%; padding:12px 16px; background:${bg}; color:${color}; border-radius:18px; align-self:${align}; font-size:0.95rem;">${content}</div>`;
-    chatView.appendChild(div);
-    chatView.scrollTop = chatView.scrollHeight;
+
+// ===============================
+//        IMAGE PREVIEW
+// ===============================
+
+function previewImage(event) {
+
+    const previewContainer = document.getElementById("image-preview-container");
+    const previewImage = document.getElementById("image-preview");
+
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        previewImage.src = e.target.result;
+        previewContainer.style.display = "block";
+    };
+
+    reader.readAsDataURL(file);
 }
 
+function clearImagePreview() {
+    const previewContainer = document.getElementById("image-preview-container");
+    const fileInput = document.getElementById("file-input");
+
+    previewContainer.style.display = "none";
+    fileInput.value = "";
+}
+
+
+// ===============================
+//        CONFIRM MODAL
+// ===============================
+
+function openConfirm() {
+    const confirmModal = document.getElementById("confirm-modal");
+    confirmModal.style.display = "flex";
+    setTimeout(() => {
+        confirmModal.style.opacity = "1";
+    }, 100);
+}
+
+function closeConfirm() {
+    const confirmModal = document.getElementById("confirm-modal");
+    confirmModal.style.opacity = "0";
+    setTimeout(() => {
+        confirmModal.style.display = "none";
+    }, 300);
+}
+
+function finalClearData() {
+    localStorage.clear();
+    location.reload();
+}
