@@ -6,7 +6,7 @@ const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
 const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat";
 
-// TYPING EFFECT
+// TYPING EFFECT - Gemini Style
 function typeWriter(element, text) {
     let formattedText = text
         .replace(/## (.*?)\n/g, '<h3>$1</h3>')
@@ -22,7 +22,7 @@ function addBubble(role, text, img = null, save = true) {
     const container = document.createElement('div');
     container.className = `${role}-msg`;
     
-    let content = img ? `<img src="${img}" style="max-width:100%; border-radius:12px; margin-bottom:10px; border:1px solid #eee;">` : '';
+    let content = img ? `<img src="${img}" style="max-width:100%; border-radius:12px; margin-bottom:10px; border:1px solid #f0f0f0;">` : '';
     
     if (text) {
         content += `<div class="bubble">${role === 'user' ? text : ''}</div>`;
@@ -53,7 +53,7 @@ async function sendMsg() {
     
     const genDiv = document.createElement('div');
     genDiv.className = 'ai-msg';
-    genDiv.innerHTML = `<div class="bubble" style="color:#999; font-style:italic;">Analyzing...</div>`;
+    genDiv.innerHTML = `<div class="bubble" style="color:#aaa;">Searching...</div>`;
     chatView.appendChild(genDiv);
 
     try {
@@ -76,11 +76,10 @@ async function sendMsg() {
             addBubble('ai', data.choices[0].message.content); 
         }
     } catch (e) {
-        genDiv.innerHTML = "Connection Error.";
+        genDiv.innerHTML = "System Error. Check connection.";
     }
 }
 
-// REST OF LOGIC
 function saveToLocal() {
     const idx = allSessions.findIndex(s => s.id === currentSession.id);
     if(idx === -1) allSessions.push(currentSession); else allSessions[idx] = currentSession;
@@ -88,25 +87,25 @@ function saveToLocal() {
     renderHistory();
 }
 
-function copyText(btn, text) {
-    navigator.clipboard.writeText(text);
-    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
-    setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy', 2000);
-}
-
 function startNewChat() {
     currentSession = { id: Date.now(), messages: [] };
     chatView.innerHTML = '';
-    addBubble('ai', `Hello **${userName}**, how can I assist you today?`, null, false);
+    addBubble('ai', `Hello **${userName}**, how can I help you today?`, null, false);
 }
 
+// LOADER LOGIC
 window.onload = () => {
     renderHistory();
+    // 3 seconds baad loader jayega
     setTimeout(() => {
-        document.getElementById('loader').style.display = 'none';
-        if(!userName) document.getElementById('name-modal-overlay').style.display = 'flex';
-        else showApp();
-    }, 2000);
+        const loader = document.getElementById('loader');
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            if(!userName) document.getElementById('name-modal-overlay').style.display = 'flex';
+            else showApp();
+        }, 500);
+    }, 3000);
 };
 
 function saveUserName() {
@@ -136,7 +135,7 @@ function renderHistory() {
     allSessions.slice().reverse().forEach(s => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerText = s.messages[0]?.content.substring(0, 30) || "New Conversation";
+        div.innerText = s.messages[0]?.content.substring(0, 30) || "Conversation";
         div.onclick = () => {
             currentSession = s;
             chatView.innerHTML = '';
@@ -150,10 +149,17 @@ function renderHistory() {
 function showConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'flex'; }
 function hideConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'none'; }
 function finalDeactivate() { localStorage.clear(); location.reload(); }
+
+function copyText(btn, text) {
+    navigator.clipboard.writeText(text);
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+    setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy', 2000);
+}
+
 function handleImageUpload(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = e => addBubble('user', "Analyze this image:", e.target.result);
+        reader.onload = e => addBubble('user', "Image analysis requested:", e.target.result);
         reader.readAsDataURL(input.files[0]);
     }
 }
