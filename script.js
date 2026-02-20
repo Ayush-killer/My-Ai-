@@ -5,7 +5,7 @@ const msgInput = document.getElementById('msg-in');
 const histList = document.getElementById('hist-list');
 
 // APNA VERCEL URL YAHAN DALO
-const VERCEL_URL = "https://apna-ai-backend-jd8f-9dijysz9f-ayush-killers-projects.vercel.app/api/chat"; 
+const VERCEL_URL = "https://apna-ai-backend-jd8f-ayush-killers-projects.vercel.app/api/chat"; 
 
 let userName = localStorage.getItem('ayush_user');
 let chatSessions = JSON.parse(localStorage.getItem('ayush_chats')) || [];
@@ -190,3 +190,4 @@ msgInput.addEventListener("keypress", (e) => {
         sendMsg();
     }
 });
+
