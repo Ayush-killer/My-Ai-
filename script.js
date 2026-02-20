@@ -6,7 +6,7 @@ const msgInput = document.getElementById('msg-in');
 const imgToggle = document.getElementById('img-toggle');
 const VERCEL_URL = "https://apna-ai-ayush.vercel.app/api/chat";
 
-// TYPING EFFECT - Gemini Style
+// TYPING EFFECT
 function typeWriter(element, text) {
     let formattedText = text
         .replace(/## (.*?)\n/g, '<h3>$1</h3>')
@@ -93,9 +93,33 @@ function startNewChat() {
     addBubble('ai', `Hello **${userName}**, how can I help you today?`, null, false);
 }
 
-// LOADER LOGIC
-// LOADER LOGIC - Fix for stuck screen
+// FIXED LOADER LOGIC
+window.onload = () => {
+    renderHistory();
+    setTimeout(() => {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                if (!userName) {
+                    document.getElementById('name-modal-overlay').style.display = 'flex';
+                } else {
+                    showApp();
+                }
+            }, 500);
+        }
+    }, 3000); // Sharp 3 seconds
+};
 
+function showApp() {
+    const app = document.getElementById('app');
+    if(app) {
+        app.style.display = 'flex';
+        document.getElementById('user-display').innerText = userName;
+        if(currentSession.messages.length === 0) startNewChat();
+    }
+}
 
 function saveUserName() {
     const input = document.getElementById('user-name-input');
@@ -107,45 +131,6 @@ function saveUserName() {
     }
 }
 
-function showApp() {
-    document.getEle// 1. Updated showApp Function (Pakka dikhane ke liye)
-function showApp() {
-    const appElement = document.getElementById('app');
-    if (appElement) {
-        appElement.style.setProperty('display', 'flex', 'important'); // Force display
-        document.getElementById('user-display').innerText = userName;
-        if(currentSession.messages.length === 0) startNewChat();
-    }
-}
-
-// 2. Updated Loader Logic (3 Second Sharp Fix)
-window.onload = () => {
-    renderHistory();
-    
-    setTimeout(() => {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.style.opacity = '0';
-            
-            setTimeout(() => {
-                loader.style.display = 'none';
-                
-                // Agar naam saved hai toh seedha app dikhao
-                if (userName && userName !== "null") {
-                    showApp();
-                } else {
-                    const nameModal = document.getElementById('name-modal-overlay');
-                    if(nameModal) nameModal.style.display = 'flex';
-                }
-            }, 500); // Smooth transition
-        }
-    }, 3000); // Poore 3 second baad
-};
-    mentById('app').style.display = 'flex';
-    document.getElementById('user-display').innerText = userName;
-    if(currentSession.messages.length === 0) startNewChat();
-}
-
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
@@ -153,6 +138,7 @@ function toggleSidebar() {
 
 function renderHistory() {
     const list = document.getElementById('hist-list');
+    if(!list) return;
     list.innerHTML = '';
     allSessions.slice().reverse().forEach(s => {
         const div = document.createElement('div');
@@ -168,15 +154,15 @@ function renderHistory() {
     });
 }
 
-function showConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'flex'; }
-function hideConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'none'; }
-function finalDeactivate() { localStorage.clear(); location.reload(); }
-
 function copyText(btn, text) {
     navigator.clipboard.writeText(text);
     btn.innerHTML = '<i class="fas fa-check"></i> Copied';
     setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i> Copy', 2000);
 }
+
+function showConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'flex'; }
+function hideConfirmModal() { document.getElementById('confirm-modal-overlay').style.display = 'none'; }
+function finalDeactivate() { localStorage.clear(); location.reload(); }
 
 function handleImageUpload(input) {
     if (input.files && input.files[0]) {
@@ -185,5 +171,3 @@ function handleImageUpload(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-
-
