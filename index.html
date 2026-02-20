@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apna.Ai</title>
+    <title>Apna AI Pro</title>
+
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- LOADER -->
 <div class="preloader" id="loader">
     <div class="loader-content">
         <div class="loader-logo">APNA AI</div>
@@ -19,18 +24,7 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="confirm-modal-overlay">
-    <div class="confirm-modal">
-        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #ff3b30; margin-bottom: 15px;"></i>
-        <h2>Reset All Chats?</h2>
-        <p>Aapka saara data delete ho jayenge. Kya aap sure ho?</p>
-        <div class="modal-btns">
-            <button class="modal-btn cancel" onclick="hideConfirmModal()">Cancel</button>
-            <button class="modal-btn delete" onclick="finalDeactivate()">Yes, Reset</button>
-        </div>
-    </div>
-</div>
-
+<!-- NAME MODAL -->
 <div class="modal-overlay" id="name-modal-overlay">
     <div class="name-modal">
         <h2>Welcome</h2>
@@ -40,19 +34,9 @@
     </div>
 </div>
 
-<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+<!-- APP -->
+<div class="main-app" id="app">
 
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <h3>Chat History</h3>
-    </div>
-    <div class="history-list" id="hist-list"></div>
-    <div class="deactivate-btn" onclick="showConfirmModal()">
-        <i class="fas fa-trash-alt"></i> Clear Data
-    </div>
-</div>
-
-<div class="main-app" id="app" style="display: none;">
     <header class="header">
         <div class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
         <div id="user-display" style="font-weight:700; color:#333;"></div>
@@ -65,7 +49,10 @@
         <div class="mode-selector">
             <label class="image-gen-box" for="img-toggle">
                 <span><i class="fas fa-image"></i> Image Mode</span>
-                <div class="switch"><input type="checkbox" id="img-toggle"><span class="slider"></span></div>
+                <div class="switch">
+                    <input type="checkbox" id="img-toggle">
+                    <span class="slider"></span>
+                </div>
             </label>
         </div>
         <div class="input-wrapper">
@@ -77,6 +64,33 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<!-- SIDEBAR -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h3>Chat History</h3>
+    </div>
+    <div class="history-list" id="hist-list"></div>
+    <div class="deactivate-btn" onclick="showConfirmModal()">
+        <i class="fas fa-trash-alt"></i> Clear Data
+    </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal-overlay">
+    <div class="confirm-modal">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #ff3b30; margin-bottom: 15px;"></i>
+        <h2>Reset All Chats?</h2>
+        <p>Aapka saara data delete ho jayenge. Kya aap sure ho?</p>
+        <div class="modal-btns">
+            <button class="modal-btn cancel" onclick="hideConfirmModal()">Cancel</button>
+            <button class="modal-btn delete" onclick="finalDeactivate()">Yes, Reset</button>
+        </div>
+    </div>
+</div>
+
+<!-- Script -->
+<script src="script.js" defer></script>
 </body>
 </html>
