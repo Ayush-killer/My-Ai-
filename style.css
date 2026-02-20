@@ -1,18 +1,89 @@
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
 body { background:#fff; height:100vh; width:100vw; overflow:hidden; }
 
-/* PRELOADER */
-.preloader { position:fixed; inset:0; background:#000; z-index:10000; display:flex; justify-content:center; align-items:center; flex-direction:column; transition: opacity 0.5s ease; }
-.loader-bg-design { position:absolute; inset:0; background-image: radial-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px); background-size: 25px 25px; }
-.loader-container { position:relative; width:150px; height:150px; display:flex; justify-content:center; align-items:center; margin-bottom:15px; }
-.ring { position:absolute; border:3px solid transparent; border-radius:50%; border-top:3px solid #00d4ff; animation: rotate 2s linear infinite; }
-.ring:nth-child(2) { width:80%; height:80%; border-top-color:#463ab7; animation-duration:1.5s; animation-direction:reverse; }
-.ring:nth-child(3) { width:60%; height:60%; border-top-color:#fff; animation-duration:1s; }
-.loading-center-text { color:#fff; font-weight:800; font-size:0.9rem; text-shadow:0 0 8px #00d4ff; }
-.loader-footer-title { color:#444; font-size:0.7rem; letter-spacing:3px; font-weight:700; }
-@keyframes rotate { 100% { transform:rotate(360deg); } }
+/* ========================= */
+/* PRELOADER (FIXED VERSION) */
+/* ========================= */
 
+.preloader { 
+    position:fixed; 
+    inset:0; 
+    background:#000; 
+    z-index:10000; 
+    display:none; /* Initially hidden */
+    justify-content:center; 
+    align-items:center; 
+    flex-direction:column; 
+    opacity:1;
+    transition: opacity 0.5s ease;
+}
+
+.loader-bg-design { 
+    position:absolute; 
+    inset:0; 
+    background-image: radial-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px); 
+    background-size: 25px 25px; 
+}
+
+.loader-container { 
+    position:relative; 
+    width:150px; 
+    height:150px; 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    margin-bottom:15px; 
+}
+
+.ring { 
+    position:absolute; 
+    width:100%;
+    height:100%;
+    border:3px solid transparent; 
+    border-radius:50%; 
+    border-top:3px solid #00d4ff; 
+    animation: rotate 2s linear infinite; 
+}
+
+.ring:nth-child(2) { 
+    width:80%; 
+    height:80%; 
+    border-top-color:#463ab7; 
+    animation-duration:1.5s; 
+    animation-direction:reverse; 
+}
+
+.ring:nth-child(3) { 
+    width:60%; 
+    height:60%; 
+    border-top-color:#fff; 
+    animation-duration:1s; 
+}
+
+.loading-center-text { 
+    color:#fff; 
+    font-weight:800; 
+    font-size:0.9rem; 
+    text-shadow:0 0 8px #00d4ff; 
+    margin-top:10px;
+}
+
+.loader-footer-title { 
+    color:#aaa; 
+    font-size:0.7rem; 
+    letter-spacing:3px; 
+    font-weight:700; 
+    margin-top:5px;
+}
+
+@keyframes rotate { 
+    100% { transform:rotate(360deg); } 
+}
+
+/* ========================= */
 /* APP LAYOUT */
+/* ========================= */
+
 .header { height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 15px; border-bottom:1px solid #f0f0f0; background:#fff; }
 .brand-name { font-weight:800; font-size:1.1rem; }
 .chat-view { height:calc(100vh - 145px); overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; }
@@ -31,7 +102,7 @@ textarea { flex:1; border:none; background:transparent; outline:none; font-size:
 .dev-tag { text-align:center; font-size:0.65rem; color:#bbb; margin-top:8px; font-weight:800; }
 .chat-img-mini { max-width: 150px; border-radius: 12px; margin-bottom: 5px; display: block; border: 1px solid #ddd; }
 
-/* SIDEBAR - Fixed Bottom Clear Chat */
+/* SIDEBAR */
 .sidebar { position:fixed; top:0; left:-280px; width:260px; height:100%; background:#fff; z-index:2000; transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; }
 .sidebar.active { left:0; }
 .sidebar-header { padding: 20px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; }
@@ -40,22 +111,9 @@ textarea { flex:1; border:none; background:transparent; outline:none; font-size:
 .deactivate-btn { width: 100%; padding: 14px; color: #ff3b30; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 15px; background: rgba(255, 59, 48, 0.08); transition: 0.2s; }
 .deactivate-btn:active { transform: scale(0.95); background: rgba(255, 59, 48, 0.15); }
 
-/* MODERN MODAL ANIMATIONS */
+/* MODALS */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:flex; justify-content:center; align-items:center; z-index:9999; transition: all 0.3s ease; }
 .modal-card { background:#fff; width:88%; max-width:340px; padding:30px; border-radius:30px; text-align:center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); transform: scale(0.9); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .modal-overlay[style*="opacity: 1"] .modal-card { transform: scale(1); }
-
-.icon-glow { width:70px; height:70px; background:rgba(0, 212, 255, 0.1); color:#00d4ff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:1.8rem; box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); }
-.icon-danger-glow { width:70px; height:70px; background:rgba(255, 59, 48, 0.1); color:#ff3b30; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:1.8rem; box-shadow: 0 0 20px rgba(255, 59, 48, 0.2); }
-
-#user-name-input { width:100%; padding:15px; background:#f5f5f7; border:2px solid transparent; border-radius:15px; outline:none; font-weight:600; font-size:1rem; transition: 0.3s; margin-bottom:20px; }
-#user-name-input:focus { border-color: #00d4ff; background: #fff; box-shadow: 0 0 10px rgba(0, 212, 255, 0.1); }
-
-.btn-primary-glow { width:100%; padding:16px; background:#000; color:#fff; border:none; border-radius:15px; font-weight:700; cursor:pointer; transition: 0.3s; }
-.btn-primary-glow:active { transform: scale(0.98); opacity: 0.8; }
-
-.modal-btns-row { display: flex; gap: 12px; margin-top: 5px; }
-.btn-cancel-smooth { flex:1; padding:14px; border:none; border-radius:15px; background:#f2f2f2; font-weight:700; cursor:pointer; }
-.btn-delete-smooth { flex:1; padding:14px; border:none; border-radius:15px; background:#ff3b30; color:#fff; font-weight:700; cursor:pointer; }
 
 .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1500; display:none; }
