@@ -14,60 +14,65 @@
     <div class="loader-content">
         <div class="loader-logo">APNA AI</div>
         <div class="bar-container"><div class="bar-fill"></div></div>
-        <p style="color: rgba(255,255,255,0.5); margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">MADE BY AYUSH</p>
+        <p style="color: #666; margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">MADE BY AYUSH</p>
     </div>
 </div>
 
 <div class="modal-overlay" id="confirm-modal-overlay">
     <div class="confirm-modal">
-        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff3b30; margin-bottom: 15px;"></i>
-        <h2 style="color:white; margin-bottom:10px;">Alert!</h2>
-        <p style="color:#94a3b8; margin-bottom:20px;">"All your data will be lost, all the chats—would you still go ahead?"</p>
-        <div style="display:flex; gap:10px;">
-            <button class="modal-btn cancel" onclick="hideConfirmModal()">No</button>
-            <button class="modal-btn delete" onclick="finalDeactivate()">Yes!</button>
+        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #ff3b30; margin-bottom: 15px;"></i>
+        <h2>Reset All Chats?</h2>
+        <p>Aapka saara data aur purani baatein delete ho jayengi. Kya aap sure ho?</p>
+        <div class="modal-btns">
+            <button class="modal-btn cancel" onclick="hideConfirmModal()">Cancel</button>
+            <button class="modal-btn delete" onclick="finalDeactivate()">Yes, Reset</button>
         </div>
     </div>
 </div>
 
 <div class="modal-overlay" id="name-modal-overlay">
-    <div class="name-modal" id="name-modal">
-        <h2>Enter your name</h2>
-        <p style="color: #94a3b8; margin-bottom: 15px;">"Write your name, only then we will talk using that name."</p>
-        <input type="text" id="user-name-input" class="name-input" placeholder="YOUR NAME..." autocomplete="off">
-        <button class="name-btn" onclick="saveUserName()">let's start</button>
+    <div class="name-modal">
+        <h2>Welcome</h2>
+        <p>Apna naam batao shuru karne ke liye...</p>
+        <input type="text" id="user-name-input" class="name-input" placeholder="Enter Name..." autocomplete="off">
+        <button class="name-btn" onclick="saveUserName()">Get Started</button>
     </div>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebar">
-    <h3 style="margin-bottom:20px; color:white;">History</h3>
+    <div class="sidebar-header">
+        <h3>Chat History</h3>
+        <i class="fas fa-times" onclick="toggleSidebar()" style="cursor:pointer;"></i>
+    </div>
     <div class="history-list" id="hist-list"></div>
     <div class="deactivate-btn" onclick="showConfirmModal()">
-        <i class="fas fa-user-slash"></i> Deactivate
+        <i class="fas fa-trash-alt"></i> Clear Data
     </div>
 </div>
 
 <div class="main-app" id="app" style="display: none;">
     <header class="header">
         <div class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
-        <div id="user-display" style="font-weight:800; color:#94a3b8;"></div>
-        <div class="new-chat-btn" onclick="startNewChat()"><i class="fas fa-edit"></i></div>
+        <div id="user-display" style="font-weight:700; color:#333;"></div>
+        <div class="new-chat-btn" onclick="startNewChat()"><i class="fas fa-plus"></i></div>
     </header>
 
     <div class="chat-view" id="chat-view"></div>
 
     <div class="input-section">
-        <label class="image-gen-box" for="img-toggle">
-            <span><i class="fas fa-magic"></i> Image Generation Mode</span>
-            <div class="switch"><input type="checkbox" id="img-toggle"><span class="slider"></span></div>
-        </label>
+        <div class="mode-selector">
+            <label class="image-gen-box" for="img-toggle">
+                <span><i class="fas fa-image"></i> Image Mode</span>
+                <div class="switch"><input type="checkbox" id="img-toggle"><span class="slider"></span></div>
+            </label>
+        </div>
         <div class="input-wrapper">
             <input type="file" id="file-picker" hidden accept="image/*" onchange="handleImageUpload(this)">
-            <i class="fas fa-plus plus-btn" onclick="document.getElementById('file-picker').click()"></i>
-            <textarea id="msg-in" placeholder="Ask anything..." rows="1"></textarea>
-            <button class="send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
+            <i class="fas fa-paperclip plus-btn" onclick="document.getElementById('file-picker').click()"></i>
+            <textarea id="msg-in" placeholder="Ask me anything..." rows="1"></textarea>
+            <button class="send-btn" onclick="sendMsg()"><i class="fas fa-arrow-up"></i></button>
         </div>
     </div>
 </div>
@@ -75,5 +80,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
-
