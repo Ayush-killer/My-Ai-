@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apna AI Pro</title>
+    <title>Apna.Ai</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -13,8 +13,9 @@
 <div class="preloader" id="loader">
     <div class="loader-content">
         <div class="loader-logo">APNA AI</div>
+        <div class="loader-sub">Professional Intelligence</div>
         <div class="bar-container"><div class="bar-fill"></div></div>
-        <p style="color: #666; margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px;">MADE BY AYUSH</p>
+        <p class="loader-footer">MADE BY AYUSH</p>
     </div>
 </div>
 
@@ -22,7 +23,7 @@
     <div class="confirm-modal">
         <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #ff3b30; margin-bottom: 15px;"></i>
         <h2>Reset All Chats?</h2>
-        <p>Aapka saara data aur purani baatein delete ho jayengi. Kya aap sure ho?</p>
+        <p>Aapka saara data delete ho jayenge. Kya aap sure ho?</p>
         <div class="modal-btns">
             <button class="modal-btn cancel" onclick="hideConfirmModal()">Cancel</button>
             <button class="modal-btn delete" onclick="finalDeactivate()">Yes, Reset</button>
@@ -44,7 +45,6 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <h3>Chat History</h3>
-        <i class="fas fa-times" onclick="toggleSidebar()" style="cursor:pointer;"></i>
     </div>
     <div class="history-list" id="hist-list"></div>
     <div class="deactivate-btn" onclick="showConfirmModal()">
