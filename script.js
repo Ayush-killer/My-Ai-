@@ -32,7 +32,7 @@ function runInitialLoading() {
 }
 window.onload = runInitialLoading;
 
-// 2. SEND MESSAGE LOGIC (Tere Backend ke sath sync)
+// 2. SEND MESSAGE LOGIC
 async function sendMsg() {
     const text = msgInput.value.trim();
     if (!text) return;
@@ -57,7 +57,7 @@ async function sendMsg() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 messages: currentChat,
-                userName: userName // Tere backend ki requirement
+                userName: userName
             })
         });
 
@@ -65,7 +65,6 @@ async function sendMsg() {
         const thinkDiv = document.getElementById(thinkingId);
         if(thinkDiv) thinkDiv.remove();
 
-        // Ye line tere backend (response.data) se match karti hai
         if (data.choices && data.choices[0].message) {
             const aiReply = data.choices[0].message.content;
             addBubble('ai', aiReply);
@@ -82,7 +81,7 @@ async function sendMsg() {
     }
 }
 
-// 3. BUBBLE LOGIC (With professional Copy Button for both)
+// 3. BUBBLE LOGIC
 function addBubble(role, content) {
     const container = document.createElement('div');
     container.className = `msg-container ${role === 'user' ? 'user-container' : 'ai-container'}`;
@@ -190,4 +189,3 @@ msgInput.addEventListener("keypress", (e) => {
         sendMsg();
     }
 });
-
